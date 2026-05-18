@@ -22,3 +22,43 @@ export const createPet = async (req: Request, res: Response): Promise<void> => {
     res.status(400).json({ success: false, error: error.message });
   }
 };
+
+// @desc    Get a single pet asset by ID
+// @route   GET /api/pets/:id
+// @access  Public
+export const getPetById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    // Search MongoDB for the document matching this specific Hex ID string
+    const pet = await Pet.findById(id);
+
+    if (!pet) {
+      res.status(404).json({
+        success: false,
+        message: "The requested pet gem could not be found in the sanctuary."
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: pet
+    });
+  } catch (error: any) {
+    // Catch invalid ObjectId formatting errors safely
+    if (error.kind === "ObjectId") {
+      res.status(400).json({
+        success: false,
+        message: "Invalid Pet ID formatting style structure."
+      });
+      return;
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error exploring pet profile records.",
+      error: error.message
+    });
+  }
+};
