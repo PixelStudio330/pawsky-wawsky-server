@@ -1,27 +1,27 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-export interface AuthRequest extends Request {
+export interface AuthenticatedRequest extends Request {
   user?: {
+    id: string;
     email: string;
-    name?: string;
   };
 }
 
-export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction): void => {
+export const verifyToken = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
   const token = req.cookies?.token;
 
   if (!token) {
-    res.status(401).json({ message: 'Unauthorized access. No token provided.' });
+    res.status(401).json({ success: false, message: "Unauthorized access. No token found! 🐾" });
     return;
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { email: string; name?: string };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string; email: string };
     req.user = decoded;
-    next();
+    next(); 
   } catch (error) {
-    res.status(403).json({ message: 'Forbidden access. Invalid or expired token.' });
+    res.status(403).json({ success: false, message: "Invalid or expired token. Please log in again! 🌸" });
     return;
   }
 };
