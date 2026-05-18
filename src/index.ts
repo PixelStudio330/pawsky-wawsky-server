@@ -1,27 +1,23 @@
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import connectDB from "./config/db";
+import petRoutes from "./routes/petRoutes";
 
+// Config environment variables
 dotenv.config();
 
+// Connect to MongoDB Cloud
+connectDB();
+
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// CORS safety setup
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
-}));
-
+// Middleware
+app.use(cors({ origin: "http://localhost:3000" })); // Gives your Next.js app exclusive permission
 app.use(express.json());
-app.use(cookieParser());
 
-// Base API route
-app.get('/', (req: Request, res: Response) => {
-  res.status(200).json({ message: '🐾 Pawsky Wawsky Server API is running!' });
-});
+// Routes
+app.use("/api/pets", petRoutes);
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server listening on http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`TypeScript Backend running on http://localhost:${PORT} 🚀`));
