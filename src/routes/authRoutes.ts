@@ -3,10 +3,12 @@ import {
   registerUser, 
   loginUser, 
   logoutUser, 
-  getCurrentUser, // 👈 Import new controller handlers
-  updateProfile 
+  getCurrentUser, 
+  updateProfile,
+  getGoogleAuthUrl, // 👈 New handler
+  googleCallback    // 👈 New handler
 } from '../controllers/authController';
-import { verifyToken } from '../middleware/verifyToken'; // 👈 Import your validation guard middleware!
+import { verifyToken } from '../middleware/verifyToken';
 
 const router = Router();
 
@@ -15,9 +17,14 @@ router.post('/login', loginUser);
 router.post('/logout', logoutUser);
 
 // ==========================================
+// 🌐 GOOGLE OAUTH CHANNELS
+// ==========================================
+router.get('/google', getGoogleAuthUrl);          // GET /api/auth/google
+router.get('/google/callback', googleCallback);  // GET /api/auth/google/callback
+
+// ==========================================
 // 🛡️ SECURE PROTECTED PROFILE CHANNELS
 // ==========================================
-// These endpoints require a valid cookie token to let users pass!
 router.get('/me', verifyToken, getCurrentUser);
 router.put('/update-profile', verifyToken, updateProfile);
 
