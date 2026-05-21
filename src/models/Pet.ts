@@ -12,7 +12,7 @@ export interface IPet extends Document {
   location: string;
   adoptionFee: number;
   description: string;
-  ownerEmail: string;
+  ownerEmail: string; // This matches the field in your DB
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,7 +30,7 @@ const PetSchema: Schema = new Schema(
     location: { type: String, required: true },
     adoptionFee: { type: Number, required: true, default: 0 },
     description: { type: String, required: true },
-    ownerEmail: { type: String, required: true },
+    ownerEmail: { type: String, required: true }, // Field name explicitly used
   },
   { timestamps: true }
 );
