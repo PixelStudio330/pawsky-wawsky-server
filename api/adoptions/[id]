@@ -1,0 +1,18 @@
+// Inside your server-side patch controller:
+if (newStatus === 'approved') {
+  // 1. Mark the approved request as approved
+  await Adoption.findByIdAndUpdate(reqId, { status: 'approved' });
+
+  // 2. Automatically mark the target pet as Adopted
+  const updatedPet = await Pet.findByIdAndUpdate(
+    targetPetId, 
+    { status: 'Adopted' }, 
+    { new: true }
+  );
+
+  // 3. Reject all other pending requests for this exact pet automatically
+  await Adoption.updateMany(
+    { petId: targetPetId, _id: { $ne: reqId }, status: 'pending' },
+    { status: 'rejected' }
+  );
+}
