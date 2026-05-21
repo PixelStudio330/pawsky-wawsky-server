@@ -3,46 +3,71 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
+
 import petRoutes from "./routes/petRoutes";
 import authRoutes from "./routes/authRoutes";
-import adoptionRoutes from "./routes/adoptionRoutes"; // Import the new routes
+import adoptionRoutes from "./routes/adoptionRoutes";
 
 dotenv.config();
 connectDB();
 
 const app = express();
 
-// 🌐 Dynamic CORS configuration to support both Local Development and Production
+/* ─────────────────────────────
+   CORS CONFIG (SAFE MODE)
+───────────────────────────── */
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://pawsky-wawsky-client.vercel.app"
+  "https://pawsky-wawsky-client.vercel.app",
 ];
 
 app.use(
-  cors({ 
+  cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, Insomnia, Postman, or server-to-server)
       if (!origin) return callback(null, true);
-      
-      // Check if the incoming request origin is explicitly whitelisted
+
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error("Blocked by Pawsky Wawsky CORS Security Policy"));
+        console.warn("❌ Blocked CORS:", origin);
+        callback(null, false);
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   })
-); 
+);
 
+/* ─────────────────────────────
+   CORE MIDDLEWARE
+───────────────────────────── */
 app.use(express.json());
 app.use(cookieParser());
 
-// Routes
+/* ─────────────────────────────
+   ROUTES
+───────────────────────────── */
 app.use("/api/pets", petRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/adoptions", adoptionRoutes); // Register adoption endpoints
+app.use("/api/adoptions", adoptionRoutes);
 
+
+/* ─────────────────────────────
+   HEALTH CHECK (IMPORTANT)
+───────────────────────────── */
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Pawsky API is alive 🐾",
+  });
+});
+
+/* ─────────────────────────────
+   START SERVER
+───────────────────────────── */
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`TypeScript Backend running on port ${PORT} 🚀`));
+
+app.listen(PORT, () => {
+  console.log(`🚀 Backend running on port ${PORT}`);
+  console.log(`🐾 Wishlist route mounted at /api/wishlist`);
+});
